@@ -1,30 +1,57 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
+import { useRouter } from 'next/router'
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
+import Cookies from 'js-cookie';
 import Box from "@mui/material/Box";
+import { getLoginDetails } from '../../api/auth/signin'
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Footer from "../Footer/footer";
+import { Alert, Snackbar } from "@mui/material";
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function LogIn() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter();
+
+  const resetErrorMessage = () => {
+    setMessage(null);
+  };
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        resetErrorMessage();
+      }, 2000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [message]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    const email = data.get("email");
+    const password = data.get("password");
+    const res = await getLoginDetails({ email, password });
+    if (res?.access_token) {
+      Cookies.set("auth_token", res?.access_token);
+      router.push("/logged-in");
+    } else {
+      setMessage(res?.data?.message || 'Unauthorised');
+    }
   };
 
   return (
@@ -36,6 +63,16 @@ export default function LogIn() {
           minHeight: "100vh",
         }}
       >
+        <Snackbar
+          open={!!message}
+          autoHideDuration={2000}  
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          onClose={resetErrorMessage}
+        >
+          <Alert onClose={resetErrorMessage} severity="error">
+            {message}
+          </Alert>
+        </Snackbar>
         <CssBaseline />
         <Container component="main" maxWidth="xs">
           <Box

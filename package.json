@@ -16,11 +16,16 @@
     "@emotion/styled": "latest",
     "@mui/icons-material": "latest",
     "@mui/material": "latest",
+    "axios": "^1.4.0",
+    "cookies-next": "^2.1.2",
+    "js-cookie": "^3.0.5",
     "next": "latest",
+    "next-auth": "^4.22.2",
     "react": "latest",
     "react-dom": "latest"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.3",
     "@types/node": "latest",
     "@types/react": "latest",
     "eslint": "latest",
