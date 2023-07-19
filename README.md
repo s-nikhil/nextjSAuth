@@ -42,3 +42,10 @@ More information [in the documentation](https://mui.com/material-ui/guides/routi
 
 You now have a working example project.
 You can head back to the documentation and continue by browsing the [templates](https://mui.com/material-ui/getting-started/templates/) section.
+
+Visit /sign-in page for login
+
+
+To use API_URL, in your .env.local you can use this variable to access api in local
+
+ NEXT_PUBLIC_API_URL = "http://localhost:5000/users/"

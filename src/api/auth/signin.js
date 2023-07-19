@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const APP_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const getLoginDetails = async (payload) => {
   try {
-    const response = await axios.post(`${APP_URL}login`, payload);
+    const response = await axios.post(`${API_URL}login`, payload);
     return response.data;
   } catch (error) {
     console.error('Error during login:', error);
@@ -14,7 +14,7 @@ export const getLoginDetails = async (payload) => {
 
 export const getUserDetails = async (headers) => {
   try {
-    const response = await axios.get(`${APP_URL}details`, {
+    const response = await axios.get(`${API_URL}details`, {
       headers: {
         ...headers,
       },
