@@ -1,17 +1,26 @@
-import React from 'react'
-import { getCookie } from 'cookies-next'; 
+import React from 'react';
+import { GetServerSideProps, NextPage } from 'next';
+import { NextApiRequest } from 'next';
+import { getCookie, CookieValueTypes } from 'cookies-next';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { getUserDetails } from '../../src/api/auth/signin';
 import Cookies from 'js-cookie';
 import Header from '../../src/components/Header/header';
 import { Box, Container, IconButton } from '@mui/material';
 
-interface IndexProps {
-  userDetails: any; // Update 'any' with the type of your user details object
+interface UserDetails {
+  email: string;
 }
 
-const Index: React.FC<IndexProps> = ({ userDetails }) => {
-  // You can extract the userEmail from the userDetails object, assuming it has an 'email' property
+interface IndexProps {
+  userDetails: UserDetails | null;
+}
+
+interface CustomNextApiRequest extends NextApiRequest {
+  cookies: Partial<{ [key: string]: string }>;
+}
+
+const Index: NextPage<IndexProps> = ({ userDetails }) => {
   const userEmail = userDetails?.email || null;
 
   return (
@@ -34,23 +43,23 @@ const Index: React.FC<IndexProps> = ({ userDetails }) => {
           >
             <LockPersonIcon />
           </IconButton>
-
         </Box>
       </Container>
     </Header>
   );
-}
+};
 
 export default Index;
 
-const extractHeadersForServer = (req: any) => {
-  const tokenValue = getCookie('auth_token', { req });
-  return { "auth_token": tokenValue }; // Format the Authorization header
+const extractHeadersForServer = (req: CustomNextApiRequest): Record<string, string> => {
+  const tokenValue = getCookie('auth_token', { req }) as CookieValueTypes;
+  return { auth_token: typeof tokenValue === 'string' ? tokenValue : '' };
 };
 
-export async function getServerSideProps(context: any) {
-  const headers = extractHeadersForServer(context.req);
-  const userDetails = await getUserDetails(headers);
+export const getServerSideProps: GetServerSideProps<IndexProps> = async (context) => {
+  const req = context.req as CustomNextApiRequest;
+  const headers = extractHeadersForServer(req);
+  const userDetails: UserDetails | null = await getUserDetails(headers);
 
   if (!userDetails) {
     Cookies.remove('auth_token');
@@ -67,4 +76,4 @@ export async function getServerSideProps(context: any) {
       userDetails,
     },
   };
-}
+};

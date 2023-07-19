@@ -43,14 +43,29 @@ export default function LogIn() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const email = data.get("email");
-    const password = data.get("password");
-    const res = await getLoginDetails({ email, password });
+    const emailInput = event.currentTarget.elements.namedItem('email') as HTMLInputElement;
+    const password = data.get('password');
+  
+    if (!emailInput || !password) {
+      setMessage('Please provide both email and password');
+      return;
+    }
+  
+    if (!emailInput.validity.valid) {
+      setMessage('Please enter a valid email address');
+      return;
+    }
+  
+    const email = emailInput.value;
+    const passwordString = password as string; // Explicitly cast password to string
+  
+    const res = await getLoginDetails({ email, password: passwordString });
+  
     if (res?.access_token) {
-      Cookies.set("auth_token", res?.access_token);
-      router.push("/logged-in");
+      Cookies.set('auth_token', res.access_token);
+      router.push('/logged-in');
     } else {
-      setMessage(res?.data?.message || 'Unauthorised');
+      setMessage(res?.data?.message || 'Unauthorized');
     }
   };
 
@@ -65,7 +80,7 @@ export default function LogIn() {
       >
         <Snackbar
           open={!!message}
-          autoHideDuration={2000}  
+          autoHideDuration={2000}
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
           onClose={resetErrorMessage}
         >
@@ -102,6 +117,7 @@ export default function LogIn() {
                 id="email"
                 label="Email Address"
                 name="email"
+                type="email"
                 autoComplete="email"
                 autoFocus
               />
@@ -128,11 +144,7 @@ export default function LogIn() {
                 Sign In
               </Button>
               <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
+                <Grid item xs />
                 <Grid item>
                   <Link href="/sign-up" variant="body2">
                     {"Don't have an account? Sign Up"}
